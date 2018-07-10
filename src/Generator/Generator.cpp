@@ -2,6 +2,8 @@
 
 const double WORDS_COVERING = 0.8;
 
+void print_map(map_type &map);
+
 namespace helper {
     Direction opposite_direction(Direction direction) {
         switch (direction) {
@@ -82,7 +84,7 @@ namespace helper {
 
     bool check_cell_for_clear(int y, int x, std::array<int, 3> &shift_x, std::array<int, 3> &shift_y, map_type &map) {
         for (int i = 0; i < 3; i++)
-            if (map[y + shift_y[i]][x + shift_x[i]].word_index != -1)
+            if (!map[y + shift_y[i]][x + shift_x[i]].is_free())
                 return false;
 
         return true;
@@ -130,9 +132,9 @@ namespace helper {
             must_check_y = { 0, 0};
         }
 
-        int current_word_index = map[y][x].word_index;
+        int current_word_index = map[y][x].owner();
         for (int i = 0; i < 2; i++) {
-            int shift_word_index = map[y + must_check_y[i]][x + must_check_x[i]].word_index;
+            int shift_word_index = map[y + must_check_y[i]][x + must_check_x[i]].owner();
             // Либо эта ячейка свободна
             if (shift_word_index == -1)
                 continue;
@@ -193,9 +195,6 @@ namespace helper {
             std::pair<start_position_type, start_position_type> start_position =
                 get_start_position(index, y, x, intersect_direction);
 
-            int a1 = std::get<0>(start_position.first);
-            int b1 = std::get<1>(start_position.first);
-
             if (check_start_position(start_position.first, map, word)) {
                 std::tie(tmp_y, tmp_x, direction) = start_position.first;
                 possible_positions.emplace_back(tmp_y, tmp_x, direction);
@@ -241,11 +240,13 @@ bool bust(map_type &map, const std::vector<std::wstring> &words, int current_wor
         Direction direction = possible_positions[i].direction;
         for (int j = 0; j < words[current_word].size(); j++) {
             map[y][x].letter = words[current_word][j];
-            map[y][x].word_index = current_word;
+            map[y][x].add_owner(current_word);
             map[y][x].direction = direction;
 
             helper::go_to_vector(y, x, direction);
         }
+
+        print_map(map);
 
         bool good = bust(map, words, current_word + 1);
         if (good)
@@ -253,13 +254,43 @@ bool bust(map_type &map, const std::vector<std::wstring> &words, int current_wor
 
         direction = helper::opposite_direction(direction);
         for (int j = 0; j < words[current_word].size(); j++) {
-            map[y][x].word_index = -1;
-
             helper::go_to_vector(y, x, direction);
+            map[y][x].remove_owner(current_word);
         }
     }
 
     return false;
+}
+
+void print_map(map_type &map) {
+
+    std::cout << "==============\n";
+    size_t big_side = 1000;
+    size_t mini_x(big_side + 1), mini_y(big_side + 1), maxi_x(0), maxi_y(0);
+
+    for (size_t y = 0; y < big_side; y++) {
+        for (size_t x = 0; x < big_side; x++) {
+            if (map[y][x].is_free())
+                continue;
+
+            mini_x = std::min(mini_x, x);
+            mini_y = std::min(mini_y, y);
+
+            maxi_x = std::max(maxi_x, x);
+            maxi_y = std::max(maxi_y, y);
+        }
+    }
+
+    for (size_t y = mini_y; y <= maxi_y; y++) {
+        for (size_t x = mini_x; x <= maxi_x; x++) {
+            if (!map[y][x].is_free())
+                std::wcout << map[y][x].letter;
+            else
+                std::wcout << ' ';
+        }
+
+        std::wcout << std::endl;
+    }
 }
 
 void /*std::tuple<size_t, size_t, std::vector<WordResult>> */generate_crossword(const std::vector<std::wstring> &words) {
@@ -274,7 +305,7 @@ void /*std::tuple<size_t, size_t, std::vector<WordResult>> */generate_crossword(
     Direction start_dir = Direction::RIGHT;
 
     for (int i = 0; i < words[0].size(); i++) {
-        map[start_pos_y][start_pos_x].word_index = 0;
+        map[start_pos_y][start_pos_x].add_owner(0);
         map[start_pos_y][start_pos_x].letter = words[0][i];
         map[start_pos_y][start_pos_x].direction = start_dir;
 

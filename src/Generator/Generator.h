@@ -8,6 +8,7 @@
 #include <array>
 #include <iostream>
 #include <algorithm>
+#include <cassert>
 
 enum Direction {
     UP,
@@ -20,15 +21,54 @@ enum Direction {
 
 struct Cell {
     Cell() {
-        word_index = -1;
+        word_index = {-1, -1};
     }
 
+    /**
+     * Check that cell if free
+     */
     bool is_free() const {
-        return word_index == -1;
+        return word_index[0] == -1 && word_index[1] == -1;
+    }
+
+    /**
+     * Add new owner for cell
+     * @param index - index of new owner
+     */
+    void add_owner(int index) {
+        // Check, that new owner exists
+        assert(index != -1);
+        // Check, that cell has free space
+        assert(word_index[0] == -1 || word_index[1] == -1);
+
+        // Add in free space
+        if (word_index[0] == -1)
+            word_index[0] = index;
+        else
+            word_index[1] = index;
+    }
+
+    void remove_owner(int index) {
+        int to_delete = -1;
+        if (word_index[0] == index)
+            to_delete = 0;
+        else if (word_index[1] == index)
+            to_delete = 1;
+
+        assert(to_delete != -1);
+
+        word_index[to_delete] = -1;
+    }
+
+    /**
+     * @return the first owner of cell
+     */
+    int owner() const {
+        return word_index[0];
     }
 
     wchar_t letter;
-    int word_index;
+    std::array<int, 2> word_index;
     Direction direction;
 };
 using map_type = std::vector<std::vector<Cell>>;
