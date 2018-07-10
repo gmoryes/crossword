@@ -1,0 +1,6 @@
+*.sw*
+
+cmake-build-debug/
+build/
+
+.idea/
