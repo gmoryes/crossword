@@ -1,3 +1,5 @@
+#include <codecvt>
+
 #include "Generator.h"
 
 const double WORDS_COVERING = 0.8;
@@ -120,6 +122,7 @@ namespace helper {
     }
 
     bool check_inside_letter(int y, int x, Direction direction_, wchar_t letter, map_type &map) {
+
         Direction direction = convert_to_line_direction(direction_);
 
         std::array<int, 2> must_check_x{}, must_check_y{};
@@ -140,13 +143,13 @@ namespace helper {
                 continue;
 
             // Либо занята тем же словом, что и текущая ячейка и буквы в этих местах совпадают
-            if (shift_word_index == current_word_index && map[y][x].letter == letter)
+            if (shift_word_index == current_word_index && map[y][x].char_letter() == letter)
                 continue;
 
             return false;
         }
 
-        if (!map[y][x].is_free() && map[y][x].letter != letter)
+        if (!map[y][x].is_free() && map[y][x].char_letter() != letter)
             return false;
 
         return true;
@@ -166,7 +169,8 @@ namespace helper {
             if (not check_inside_letter(y, x, direction, word[i], map))
                 return false;
 
-            go_to_vector(y, x, direction);
+            if (i + 1 != word.size())
+                go_to_vector(y, x, direction);
         }
 
         start_position_type last_symbol{y, x, direction};
@@ -177,7 +181,7 @@ namespace helper {
                                 map_type &map, const std::wstring &word, int y, int x) {
 
         std::vector<size_t> letter_occur_index;
-        wchar_t letter = map[y][x].letter;
+        wchar_t letter = map[y][x].char_letter();
         for (size_t i = 0; i < word.size(); i++)
             if (word[i] == letter)
                 letter_occur_index.push_back(i);
@@ -186,10 +190,6 @@ namespace helper {
 
         Direction direction;
         int tmp_y, tmp_x;
-
-        if (word == L"neighbour") {
-            int asd = 4;
-        }
 
         for (auto index : letter_occur_index) {
             std::pair<start_position_type, start_position_type> start_position =
@@ -225,7 +225,7 @@ bool bust(map_type &map, const std::vector<std::wstring> &words, int current_wor
             if (map[y][x].is_free())
                 continue;
 
-            wchar_t current_letter = map[y][x].letter;
+            wchar_t current_letter = map[y][x].char_letter();
 
             if (letters.find(current_letter) == letters.end())
                 continue;
@@ -239,7 +239,7 @@ bool bust(map_type &map, const std::vector<std::wstring> &words, int current_wor
         size_t x = possible_positions[i].x;
         Direction direction = possible_positions[i].direction;
         for (int j = 0; j < words[current_word].size(); j++) {
-            map[y][x].letter = words[current_word][j];
+            map[y][x].wstring_letter() = words[current_word][j];
             map[y][x].add_owner(current_word);
             map[y][x].direction = direction;
 
@@ -260,6 +260,12 @@ bool bust(map_type &map, const std::vector<std::wstring> &words, int current_wor
     }
 
     return false;
+}
+
+// convert wstring to UTF-8 string
+std::string wstring_to_utf8 (const std::wstring &str) {
+    std::wstring_convert<std::codecvt_utf8<wchar_t> > myconv;
+    return myconv.to_bytes(str);
 }
 
 void print_map(map_type &map) {
@@ -283,13 +289,14 @@ void print_map(map_type &map) {
 
     for (size_t y = mini_y; y <= maxi_y; y++) {
         for (size_t x = mini_x; x <= maxi_x; x++) {
-            if (!map[y][x].is_free())
-                std::wcout << map[y][x].letter;
-            else
-                std::wcout << ' ';
+            if (!map[y][x].is_free()) {
+                std::cout << wstring_to_utf8(map[y][x].wstring_letter());
+            } else {
+                std::cout << ' ';
+            }
         }
 
-        std::wcout << std::endl;
+        std::cout << std::endl;
     }
 }
 
@@ -306,7 +313,7 @@ void /*std::tuple<size_t, size_t, std::vector<WordResult>> */generate_crossword(
 
     for (int i = 0; i < words[0].size(); i++) {
         map[start_pos_y][start_pos_x].add_owner(0);
-        map[start_pos_y][start_pos_x].letter = words[0][i];
+        map[start_pos_y][start_pos_x].wstring_letter() = words[0][i];
         map[start_pos_y][start_pos_x].direction = start_dir;
 
         helper::go_to_vector(start_pos_y, start_pos_x, start_dir);
@@ -332,15 +339,16 @@ void /*std::tuple<size_t, size_t, std::vector<WordResult>> */generate_crossword(
 
         for (size_t y = mini_y; y <= maxi_y; y++) {
             for (size_t x = mini_x; x <= maxi_x; x++) {
-                if (!map[y][x].is_free())
-                    std::wcout << map[y][x].letter;
-                else
-                    std::wcout << ' ';
+                if (!map[y][x].is_free()) {
+                    std::cout << wstring_to_utf8(map[y][x].wstring_letter());
+                } else {
+                    std::cout << ' ';
+                }
             }
 
-            std::wcout << std::endl;
+            std::cout << std::endl;
         }
     } else {
-        std::wcout << "I can't :(\n";
+        std::cout << "I can't :(" << std::endl;
     }
 }

@@ -67,7 +67,15 @@ struct Cell {
         return word_index[0];
     }
 
-    wchar_t letter;
+    wchar_t char_letter() const {
+        return _letter[0];
+    }
+
+    std::wstring& wstring_letter() {
+        return _letter;
+    }
+
+    std::wstring _letter;
     std::array<int, 2> word_index;
     Direction direction;
 };
