@@ -4,3 +4,4 @@ set(SOURCE_FILES
         )
 
 add_library(server ${SOURCE_FILES})
+target_link_libraries(server generator helper)
