@@ -76,6 +76,7 @@ std::tuple<uint32_t, uint32_t, std::vector<WordResult>> Generator::generate_cros
     uint32_t start_pos_y = SIDE / 3;
     Direction start_dir = Direction::RIGHT;
 
+    map[start_pos_y][start_pos_x].make_first();
     for (int i = 0; i < _words[0].size(); i++) {
         map[start_pos_y][start_pos_x].add_owner(0);
         map[start_pos_y][start_pos_x].wstring_letter() = _words[0][i];

@@ -4,6 +4,7 @@ from django.http import HttpResponse
 import socket
 from struct import *
 import json
+from django.views.decorators.csrf import csrf_exempt
 
 def index(request):
     return render(request, "index.html", {"name": "Misha"})
@@ -26,6 +27,7 @@ def recv_number(sock):
 
     return number
 
+@csrf_exempt
 def generate(request):
     print(request.POST)
 
