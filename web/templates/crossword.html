@@ -1,0 +1,27 @@
+<script type="text/plain" class="b-app-config">
+{
+    "data": "{{ data }}"
+}
+</script>
+
+<input id="asd" type="text">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+
+<script>
+    (function () {
+        'use strict';
+
+        var config;
+        try {
+            config = JSON.parse(document.querySelector('.b-app-config').innerHTML);
+        } catch (err) {
+            config = {};
+        }
+
+        $("#asd").val("asd");
+
+    }());
+
+</script>
