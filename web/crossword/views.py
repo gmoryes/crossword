@@ -41,6 +41,7 @@ def generate(request):
     data.extend(words_number)
 
     for word in words:
+        word = word.lower()
         data.extend(len(str.encode(word)).to_bytes(4, 'little'))
         data.extend(str.encode(word))
 
