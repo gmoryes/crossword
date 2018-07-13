@@ -16,10 +16,8 @@ def recvall(sock, n):
     while len(data) < n:
         packet = sock.recv(n - len(data))
         if not packet:
-            print("data = ", data)
             return data
         data += packet
-    print("data = ", data)
     return data
 
 def recv_number(sock):
@@ -44,8 +42,8 @@ def generate(request):
 
     print("words_number =", words_number)
 
-    words_number = words_number.to_bytes(4, 'little')
-    data.extend(words_number)
+    words_number_bytes = words_number.to_bytes(4, 'little')
+    data.extend(words_number_bytes)
 
     for word in words:
         if (len(word) == 0):
@@ -64,7 +62,7 @@ def generate(request):
 
     for_java_script = []
 
-    for i in range(len(words)):
+    for i in range(words_number):
         data = recvall(sock, 16)
         (y, x, direction, length) = unpack("iiii", data)
 
