@@ -1,7 +1,10 @@
 *.sw*
 
 .DS_Store
+
 cmake-build-debug/
 build/
+
+__pycache__/
 
 .idea/
