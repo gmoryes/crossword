@@ -20,7 +20,8 @@ public:
     explicit Generator(std::vector<std::wstring> &words):
         _words(std::move(words)),
         current_word(0),
-        map(SIDE, std::vector<Cell>(SIDE)) {}
+        map(SIDE, std::vector<Cell>(SIDE)),
+        _result(_words.size()) {}
 
     /**
      * Create new crossword field
@@ -44,6 +45,9 @@ private:
 
     /* Current index of word in bust */
     uint32_t current_word;
+
+    /* Result data */
+    std::vector<WordPosition> _result;
 };
 
 } // namespace generator

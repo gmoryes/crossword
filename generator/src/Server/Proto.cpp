@@ -24,10 +24,11 @@ namespace Server {
 #define send_data_to_socket(socket, from, size)                                                            \
     {                                                                                                      \
        ssize_t tmp = write(socket, from, size);                                                            \
-           std::cerr << "write(" << socket << ", " << #from << ", " << size << ")" << std::endl;           \
+       std::cerr << "write(" << socket << ", " << #from << ", " << size << ")" << std::endl;               \
        if (tmp != (size)) {                                                                                \
            std::stringstream ss;                                                                           \
-           ss << "Bad data, want write from " << #from << "to socket: " << #socket << ", size: " << #size; \
+           ss << "write() error(" << errno << "), want write from " << #from << " to socket: ";            \
+           ss << socket << ", size: " << size;                                                             \
            throw std::runtime_error(ss.str());                                                             \
        }                                                                                                   \
     }                                                                                                      \
@@ -35,7 +36,7 @@ namespace Server {
 #define check_for_positive(data)             \
     if ((data) < 0) {                        \
         std::stringstream ss;                \
-        ss << #data << " is negative";        \
+        ss << #data << " is negative";       \
         throw std::runtime_error(ss.str());  \
     }                                        \
 
@@ -89,7 +90,7 @@ void Proto::send_data(uint32_t H, uint32_t W, const std::vector<WordResult> &res
         send_data_to_socket(client_socket, &item.x, sizeof(uint32_t));
 
         std::cerr << "direction = " << item.direction << std::endl;
-        assert(sizeof(item.direction) == 4);
+        static_assert(sizeof(item.direction) == 4, "");
         send_data_to_socket(client_socket, &item.direction, 4);
 
         uint32_t size = string.size();

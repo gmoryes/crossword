@@ -2,9 +2,12 @@
 
 .DS_Store
 
-cmake-build-debug/
-build/
+generator/cmake-build-debug/
+generator/build/
 
-__pycache__/
+web/web/__pycache__/
+web/crossword/__pycache__/
+
+*.pyc
 
 .idea/

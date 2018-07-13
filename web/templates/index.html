@@ -25,18 +25,17 @@
 <input type="button" id="send_request_button" value="Составить кроссворд">
 <div id="words_block">
     <label>
-        <!--<input type="text" value="миша"><br>
+        <input type="text" value="миша"><br>
         <input type="text" value="машина"><br>
         <input type="text" value="экзамен"><br>
         <input type="text" value="учитель"><br>
         <input type="text" value="программа"><br>
-        <input type="text" value="приколы">-->
+        <input type="text" value="приколы">
     </label>
 </div>
 
 
- <table align="center" style="text-align:center" width="60%" border="1" id="crossword_table">
-  </table>
+ <table align="center" style="text-align:center;width:600px;" border="1" id="crossword_table"></table>
 
 
 <script>
@@ -52,6 +51,33 @@
             } else if (direction == 3) {
                 return [y, x - 1];
             }
+        }
+
+        function add_start_bound(elem, direction) {
+            if (direction == 0) {
+                elem.css('border-bottom', '2px solid black');
+            } else if (direction == 1) {
+                elem.css('border-left', '2px solid black');
+            } else if (direction == 2) {
+                elem.css('border-block-start', '2px solid black');
+            } else if (direction == 3) {
+                elem.css('border-right', '2px solid black');
+            }
+        }
+
+        function add_inside_bound(elem, direction) {
+            if (direction == 0 || direction == 2) {
+                elem.css('border-left', '2px solid black');
+                elem.css('border-right', '2px solid black');
+            } else {
+                elem.css('border-block-start', '2px solid black');
+                elem.css('border-bottom', '2px solid black');
+            }
+        }
+
+        function add_end_bound(elem, direction) {
+            direction = (direction + 2) % 4;
+            add_start_bound(elem, direction);
         }
 
         function draw_crossword(data) {
@@ -79,10 +105,19 @@
                 let y = data.data[i].y;
                 let direction = data.data[i].direction;
                 let chars = data.data[i].word.split("");
+
+                table[y].eq(x).css('background-color', 'bisque');
+                add_start_bound(table[y].eq(x), direction);
                 for (index = 0; index < chars.length; index++) {
+
                     if (!table[y].eq(x).text()) {
                         table[y].eq(x).append('<h3>' + chars[index] + '</h3>');
                     }
+
+                    add_inside_bound(table[y].eq(x), direction);
+                    if (index + 1 == chars.length)
+                        add_end_bound(table[y].eq(x), direction);
+
                     [y, x] = go_to_vector(y, x, direction);
                 }
             }
@@ -107,6 +142,9 @@
         });
 
         $("#send_request_button").click(function () {
+
+            $("#crossword_table").empty();
+
             let elems = $("#words_block").find("input");
             let words = [];
             for (i = 0; i < elems.length; i++) {

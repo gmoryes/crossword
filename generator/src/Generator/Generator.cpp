@@ -36,6 +36,7 @@ bool Generator::bust() {
         Direction direction = possible_position.direction;
 
         map[y][x].make_first();
+        _result[current_word] = WordPosition(y, x, direction);
         for (int j = 0; j < _words[current_word].size(); j++) {
             map[y][x].wstring_letter() = _words[current_word][j];
             map[y][x].add_owner(current_word);
@@ -68,7 +69,7 @@ bool Generator::bust() {
 std::tuple<uint32_t, uint32_t, std::vector<WordResult>> Generator::generate_crossword() {
 
     uint32_t H(0), W(0);
-    std::vector<WordResult> result;
+    std::vector<WordResult> result(_words.size());
 
     std::cout << "Start generate crossword" << std::endl;
 
@@ -77,6 +78,7 @@ std::tuple<uint32_t, uint32_t, std::vector<WordResult>> Generator::generate_cros
     Direction start_dir = Direction::RIGHT;
 
     map[start_pos_y][start_pos_x].make_first();
+    _result[0] = WordPosition(start_pos_y, start_pos_x, start_dir);
     for (int i = 0; i < _words[0].size(); i++) {
         map[start_pos_y][start_pos_x].add_owner(0);
         map[start_pos_y][start_pos_x].wstring_letter() = _words[0][i];
@@ -84,6 +86,7 @@ std::tuple<uint32_t, uint32_t, std::vector<WordResult>> Generator::generate_cros
 
         helper::go_to_vector(start_pos_y, start_pos_x, start_dir);
     }
+
 
     current_word = 1;
 
@@ -112,28 +115,44 @@ std::tuple<uint32_t, uint32_t, std::vector<WordResult>> Generator::generate_cros
 
         std::cout << "side(" << H << "x" << W << ")" << std::endl;
 
-        for (uint32_t y = mini_y; y <= maxi_y; y++) {
-            for (uint32_t x = mini_x; x <= maxi_x; x++) {
+        for (int i = 0; i < _words.size(); i++) {
+            result[i].y = _result[i].y - mini_y;
+            result[i].x = _result[i].x - mini_x;
+            result[i].direction = _result[i].direction;
 
-                if (!map[y][x].is_free() && map[y][x].is_first()) {
-
-
-                    Direction d;
-                    while (map[y][x].pop_direction(d)) {
-
-                        uint32_t tmp_y(y), tmp_x(x);
-                        std::cerr << "+++" << std::endl;
-
-                        result.push_back({L"", tmp_y - mini_y, tmp_x - mini_x, d});
-
-                        while (!map[tmp_y][tmp_x].is_free()) {
-                            result.back().word += map[tmp_y][tmp_x].wstring_letter();
-                            helper::go_to_vector(tmp_y, tmp_x, d);
-                        }
-                    }
-                }
-            }
+            result[i].word = _words[i];
         }
+
+//        for (uint32_t y = mini_y; y <= maxi_y; y++) {
+//            for (uint32_t x = mini_x; x <= maxi_x; x++) {
+//
+//                std::cout << y - mini_y << ' ' << x - mini_x << " => " << map[y][x].is_free();
+//
+//                if (!map[y][x].is_free() && map[y][x].is_first()) {
+//
+//                    Direction d;
+//                    while (map[y][x].pop_direction(d)) {
+//
+//                        std::cout << " first ";
+//
+//                        uint32_t tmp_y(y), tmp_x(x);
+//
+//                        result.push_back({L"", tmp_y - mini_y, tmp_x - mini_x, d});
+//
+//                        while (!map[tmp_y][tmp_x].is_free()) {
+//                            result.back().word += map[tmp_y][tmp_x].wstring_letter();
+//                            helper::go_to_vector(tmp_y, tmp_x, d);
+//                        }
+//
+//                        std::cout << " get(" << helper::wstring_to_utf8(result.back().word) << ") ";
+//                    }
+//                }
+//
+//                std::cout << std::endl;
+//            }
+//        }
+
+
 
     } else {
         std::cout << "I can't :(" << std::endl;

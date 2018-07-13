@@ -148,6 +148,7 @@ struct WordResult {
 
 /* Helpful for save words position during bust */
 struct WordPosition {
+    WordPosition(): y(0), x(0), direction(UP) {}
     WordPosition(int y, int x, Direction direction) : y(y), x(x), direction(direction) {}
 
     uint32_t y, x;
