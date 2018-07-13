@@ -37,10 +37,20 @@ def generate(request):
 
     data = bytearray()
 
-    words_number = len(words).to_bytes(4, 'little')
+    words_number = 0
+    for w in words:
+        if (len(w) != 0):
+            words_number += 1
+
+    print("words_number =", words_number)
+
+    words_number = words_number.to_bytes(4, 'little')
     data.extend(words_number)
 
     for word in words:
+        if (len(word) == 0):
+            print("zero")
+            continue
         word = word.lower()
         data.extend(len(str.encode(word)).to_bytes(4, 'little'))
         data.extend(str.encode(word))

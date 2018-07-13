@@ -123,36 +123,7 @@ std::tuple<uint32_t, uint32_t, std::vector<WordResult>> Generator::generate_cros
             result[i].word = _words[i];
         }
 
-//        for (uint32_t y = mini_y; y <= maxi_y; y++) {
-//            for (uint32_t x = mini_x; x <= maxi_x; x++) {
-//
-//                std::cout << y - mini_y << ' ' << x - mini_x << " => " << map[y][x].is_free();
-//
-//                if (!map[y][x].is_free() && map[y][x].is_first()) {
-//
-//                    Direction d;
-//                    while (map[y][x].pop_direction(d)) {
-//
-//                        std::cout << " first ";
-//
-//                        uint32_t tmp_y(y), tmp_x(x);
-//
-//                        result.push_back({L"", tmp_y - mini_y, tmp_x - mini_x, d});
-//
-//                        while (!map[tmp_y][tmp_x].is_free()) {
-//                            result.back().word += map[tmp_y][tmp_x].wstring_letter();
-//                            helper::go_to_vector(tmp_y, tmp_x, d);
-//                        }
-//
-//                        std::cout << " get(" << helper::wstring_to_utf8(result.back().word) << ") ";
-//                    }
-//                }
-//
-//                std::cout << std::endl;
-//            }
-//        }
-
-
+        // TODO delete useless fields from struct Cell
 
     } else {
         std::cout << "I can't :(" << std::endl;

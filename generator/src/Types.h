@@ -38,6 +38,7 @@ public:
         // Check, that new owner exists
         assert(index != -1);
 
+        // TODO fix it
         // Check, that cell has free space
         assert(_word_index[0] == -1 || _word_index[1] == -1);
 

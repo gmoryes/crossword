@@ -38,7 +38,7 @@
 
 
 <table align="center" style="text-align:center;width:600px;" border="1" id="crossword_table"></table>
-
+<div id="message_div"></div>
 
 <script>
     $(function() {
@@ -83,6 +83,12 @@
         }
 
         function draw_crossword(data) {
+            $("#message_div").empty();
+            if (data.height == data.width && data.width == 0) {
+                $("#message_div").append("<h3 style='color:red'>Не могу составить кроссворд из этих слов, " +
+                    "добавьте другие слова так, чтобы было больше пересечений</h3>");
+                return;
+            }
 
             for (i = 0; i < data.height; i++) {
                 $("#crossword_table").append('<tr></tr>');
