@@ -18,85 +18,12 @@ enum Direction {
 
 class Cell {
 public:
-    Cell(): _first(false) {
+    Cell() {
         _word_index = {-1, -1};
     }
 
-    /**
-     * Check that cell is free
-     */
     bool is_free() const {
-        return _word_index[0] == -1 && _word_index[1] == -1;
-    }
-
-    /**
-     * Add new owner for cell
-     * @param index - index of new owner
-     */
-    void add_owner(int index) {
-
-        // Check, that new owner exists
-        assert(index != -1);
-
-        // TODO fix it
-        // Check, that cell has free space
-        assert(_word_index[0] == -1 || _word_index[1] == -1);
-
-        // Add in free space
-        if (_word_index[0] == -1)
-            _word_index[0] = index;
-        else
-            _word_index[1] = index;
-    }
-
-    /**
-     * Removes one owner of cell
-     * @param index - index of removing owner
-     */
-    void remove_owner(int index) {
-
-        int to_delete = -1;
-        if (_word_index[0] == index)
-            to_delete = 0;
-        else if (_word_index[1] == index)
-            to_delete = 1;
-
-        assert(to_delete != -1);
-
-        _word_index[to_delete] = -1;
-    }
-
-    /**
-     * @return the first owner of cell
-     */
-    int owner() const {
-        return _word_index[0];
-    }
-
-    /**
-     * @return letter if wchar_t format
-     */
-    wchar_t char_letter() const {
-        return _letter[0];
-    }
-
-    /**
-     * @return letter in std::wstring format
-     */
-    std::wstring &wstring_letter() {
-        return _letter;
-    }
-
-    void make_first() {
-        _first = true;
-    }
-
-    void clean_first() {
-        _first = false;
-    }
-
-    bool is_first() const {
-        return _first;
+        return _directions.empty();
     }
 
     void add_direction(Direction d) {
@@ -128,10 +55,10 @@ public:
         return true;
     }
 
+    wchar_t letter{};
 private:
-    std::wstring _letter;
-    std::array<int, 2> _word_index;
-    bool _first;
+
+    std::deque<int> _word_index;
     std::deque<Direction> _directions;
 };
 

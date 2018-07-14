@@ -27,7 +27,7 @@ void print_map(map_type &map) {
     for (size_t y = mini_y; y <= maxi_y; y++) {
         for (size_t x = mini_x; x <= maxi_x; x++) {
             if (!map[y][x].is_free()) {
-                std::cout << helper::wstring_to_utf8(map[y][x].wstring_letter());
+                std::cout << helper::wstring_to_utf8(std::wstring(1, map[y][x].letter));
             } else {
                 std::cout << ' ';
             }

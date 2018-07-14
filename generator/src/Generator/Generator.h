@@ -10,6 +10,9 @@
 #include <iostream>
 #include <algorithm>
 #include <cassert>
+#include <unordered_map>
+#include <deque>
+#include <unordered_map>
 
 #include "Types.h"
 
@@ -19,9 +22,13 @@ class Generator {
 public:
     explicit Generator(std::vector<std::wstring> &words):
         _words(std::move(words)),
-        current_word(0),
         map(SIDE, std::vector<Cell>(SIDE)),
-        _result(_words.size()) {}
+        _result(_words.size()) {
+
+        for (int i = 0; i < _words.size(); i++) {
+            _bust_words.push_back(i);
+        }
+    }
 
     /**
      * Create new crossword field
@@ -31,6 +38,9 @@ public:
     std::tuple<uint32_t, uint32_t, std::vector<WordResult>> generate_crossword();
 
 private:
+
+    bool start_bust();
+    void add_word_to_map(uint32_t &y, uint32_t &x, Direction direction, int current_word);
 
     static constexpr uint32_t SIDE = 1000;
 
@@ -43,11 +53,14 @@ private:
     /* Array of words to make crossword from them */
     std::vector<std::wstring> _words;
 
-    /* Current index of word in bust */
-    uint32_t current_word;
-
     /* Result data */
     std::vector<WordPosition> _result;
+
+    /* Sequence of words to be busted */
+    std::deque<int> _bust_words;
+
+    /* Hash table of wchat_t => positions where that char placed */
+    std::unordered_map<wchar_t, std::vector<std::pair<uint32_t, uint32_t> > > _letters;
 };
 
 } // namespace generator

@@ -129,21 +129,20 @@ bool check_inside_letter(int y, int x, Direction direction_, wchar_t letter, map
         must_check_y = { 0, 0};
     }
 
-    int current_word_index = map[y][x].owner();
     for (int i = 0; i < 2; i++) {
-        int shift_word_index = map[y + must_check_y[i]][x + must_check_x[i]].owner();
+
         // Cell is free
-        if (shift_word_index == -1)
+        if (map[y + must_check_y[i]][x + must_check_x[i]].is_free())
             continue;
 
-        // Or it has owner the same with current and letter are equals
-        if (shift_word_index == current_word_index && map[y][x].char_letter() == letter)
+        // Or letters are equals
+        if (map[y][x].letter == letter)
             continue;
 
         return false;
     }
 
-    if (!map[y][x].is_free() && map[y][x].char_letter() != letter)
+    if (!map[y][x].is_free() && map[y][x].letter != letter)
         return false;
 
     return true;
@@ -175,7 +174,7 @@ void add_possible_positions(std::vector<WordPosition> &possible_positions, map_t
                             const std::wstring &word, int y, int x) {
 
     std::vector<uint32_t> letter_occur_index;
-    wchar_t letter = map[y][x].char_letter();
+    wchar_t letter = map[y][x].letter;
     for (uint32_t i = 0; i < word.size(); i++)
         if (word[i] == letter)
             letter_occur_index.push_back(i);
