@@ -18,9 +18,13 @@
     .letter {
         text-align: center;
         border: 1px solid;
-        background-color: beige;
+        background-color: rgb(245, 245, 220);
         margin-top: -1px;
         margin-left: -1px;
+    }
+
+    .letter:hover {
+        //background-color: rgb(190, 245, 220);
     }
 
     .main {
@@ -42,11 +46,37 @@
     }
 
     .start_letter {
-        background-color: darkseagreen;
+        background-color: rgb(143, 188, 139);
     }
 
-    .hover_letter {
-        background-color: rgba(0, 0, 0, 0.4);
+    .start_letter:hover {
+        //background-color: rgb(120, 198, 139);
+    }
+
+    .hover_word_horizontal {
+        border-top: 3px solid;
+        border-bottom: 3px solid;
+    }
+
+    .hover_word_horizontal_first_left {
+        border-left: 3px solid;
+    }
+
+    .hover_word_horizontal_last_right {
+        border-right: 3px solid;
+    }
+
+    .hover_word_vertical {
+        border-left: 3px solid;
+        border-right: 3px solid;
+    }
+
+    .hover_word_vertical_first_up {
+        border-top: 3px solid;
+    }
+
+    .hover_word_vertical_last_down {
+        border-bottom: 3px solid;
     }
 </style>
 <body>
@@ -107,13 +137,39 @@
 <script>
     $(function() {
 
+        function get_first_bound(direction) {
+            switch (direction) {
+                case 0:
+                    return "hover_word_vertical_last_down";
+                case 1:
+                    return "hover_word_horizontal_first_left";
+                case 2:
+                    return "hover_word_vertical_first_up";
+                case 3:
+                    return "hover_word_horizontal_last_right";
+            }
+        }
+
+        function remove_hover_class(elem) {
+            elem.removeClass('hover_word_horizontal');
+            elem.removeClass('hover_word_horizontal_first_left');
+            elem.removeClass('hover_word_horizontal_last_right');
+            elem.removeClass('hover_word_vertical');
+            elem.removeClass('hover_word_vertical_first_up');
+            elem.removeClass('hover_word_vertical_last_down');
+        }
+
+        function get_last_bound(direction) {
+            return get_first_bound((direction + 2) % 4);
+        }
+
         function create_table_div(height, width, data) {
 
             for (i = 0; i < height; i++) {
                 $("#main_table").append('<div class="one_line">');
             }
 
-            let lines = $("#main_table").find("div");
+            let lines = $('#main_table').find("div");
             for (i = 0; i < height; i++) {
                 for (j = 0; j < width; j++) {
                     lines.eq(i).append('<div class="empty_letter"></div>');
@@ -121,8 +177,10 @@
             }
 
             let table = [];
+            let help_data = [];
             for (i = 0; i < lines.length; i++) {
                 table[i] = lines.eq(i).find("div");
+                help_data[i] = [];
             }
 
             console.log(table);
@@ -133,9 +191,23 @@
                 let direction = data[i].direction;
                 let chars = data[i].word.split("");
 
-                table[y].eq(x).addClass("start_letter")
+                table[y].eq(x).addClass("start_letter");
+
+                if (!help_data[y][x])
+                    help_data[y][x] = [];
+
+                console.log("x = " + x + " y = " + y + " data: ");
+                console.log(help_data[y][x]);
+
+                let obj = {
+                    direction: direction,
+                    data: []
+                };
+
+                let save_x = x, save_y = y;
                 for (index = 0; index < chars.length; index++) {
 
+                    obj.data.push(table[y].eq(x));
                     table[y].eq(x).removeClass("empty_letter");
 
                     if (!table[y].eq(x).text()) {
@@ -145,6 +217,36 @@
 
                     [y, x] = go_to_vector(y, x, direction);
                 }
+
+                help_data[save_y][save_x].push(obj);
+
+                table[save_y].eq(save_x).mouseover(function () {
+
+                    for (j = 0; j < help_data[save_y][save_x].length; j++) {
+                        let direction = help_data[save_y][save_x][j].direction;
+
+                        help_data[save_y][save_x][j].data[0].addClass(get_first_bound(direction));
+
+                        for (i = 0; i < help_data[save_y][save_x][j].data.length; i++) {
+                            if (direction == 0 || direction == 2)
+                                help_data[save_y][save_x][j].data[i].addClass('hover_word_vertical');
+                            else
+                                help_data[save_y][save_x][j].data[i].addClass('hover_word_horizontal');
+                        }
+
+                        let last = help_data[save_y][save_x][j].data.length - 1;
+                        help_data[save_y][save_x][j].data[last].addClass(get_last_bound(direction));
+                    }
+                });
+
+                table[save_y].eq(save_x).mouseout(function () {
+                    $(this).attr('class', 'start_letter letter');
+                    for (i = 0; i < help_data[save_y][save_x].length; i++) {
+                        for (j = 0; j < help_data[save_y][save_x][i].data.length; j++) {
+                            remove_hover_class(help_data[save_y][save_x][i].data[j]);
+                        }
+                    }
+                });
             }
 
             let size = Math.round(900 / width);
@@ -189,13 +291,13 @@
 
             create_table_div(data.height, data.width, data.data);
 
-            $(".letter").mouseover(function() {
+            /*$(".letter").mouseover(function() {
                 $(this).addClass("hover_letter");
             });
 
             $(".letter").mouseleave(function () {
                 $(this).removeClass("hover_letter");
-            })
+            })*/
         }
 
         function getCookie(c_name) {
@@ -238,7 +340,6 @@
             });
 
         });
-
     });
 
 </script>
