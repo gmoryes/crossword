@@ -14,6 +14,41 @@
     <meta charset="UTF-8">
     <title>Hello world</title>
 </head>
+<style>
+    .letter {
+        text-align: center;
+        border: 1px solid;
+        background-color: beige;
+        margin-top: -1px;
+        margin-left: -1px;
+    }
+
+    .main {
+        margin: auto;
+    }
+
+    .char_font {
+    }
+
+    .one_line {
+        display: flex;
+    }
+
+    .empty_letter {
+        background-color: azure;
+        border: 1px solid;
+        margin-top: -1px;
+        margin-left: -1px;
+    }
+
+    .start_letter {
+        background-color: darkseagreen;
+    }
+
+    .hover_letter {
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+</style>
 <body>
 
 <h1>1) Нажми "новое слово"</h1>
@@ -36,12 +71,100 @@
     </label>
 </div>
 
+<!--
+<div class="main">
+    <div class="one_line">
+        <div class="letter start_letter"><p class="char_font">М</p></div>
+        <div class="letter"><p class="char_font">И</p></div>
+        <div class="letter"><p class="char_font">Ш</p></div>
+        <div class="letter"><p class="char_font">А</p></div>
+    </div>
+    <div class="one_line">
+        <div class="letter"><p class="char_font">А</p></div>
+        <div class="empty_letter"></div>
+        <div class="empty_letter"></div>
+        <div class="empty_letter"></div>
+    </div>
+    <div class="one_line">
+        <div class="letter"><p class="char_font">Ш</p></div>
+        <div class="empty_letter"></div>
+        <div class="empty_letter"></div>
+        <div class="empty_letter"></div>
+    </div>
+    <div class="one_line">
+        <div class="letter"><p class="char_font">А</p></div>
+        <div class="empty_letter"></div>
+        <div class="empty_letter"></div>
+        <div class="empty_letter"></div>
+    </div>
+</div>
+-->
 
-<table align="center" style="text-align:center;width:600px;" border="1" id="crossword_table"></table>
 <div id="message_div"></div>
+
+<div class="main" id="main_table"></div>
 
 <script>
     $(function() {
+
+        function create_table_div(height, width, data) {
+
+            for (i = 0; i < height; i++) {
+                $("#main_table").append('<div class="one_line">');
+            }
+
+            let lines = $("#main_table").find("div");
+            for (i = 0; i < height; i++) {
+                for (j = 0; j < width; j++) {
+                    lines.eq(i).append('<div class="empty_letter"></div>');
+                }
+            }
+
+            let table = [];
+            for (i = 0; i < lines.length; i++) {
+                table[i] = lines.eq(i).find("div");
+            }
+
+            console.log(table);
+
+            for (i = 0; i < data.length; i++) {
+                let x = data[i].x;
+                let y = data[i].y;
+                let direction = data[i].direction;
+                let chars = data[i].word.split("");
+
+                table[y].eq(x).addClass("start_letter")
+                for (index = 0; index < chars.length; index++) {
+
+                    table[y].eq(x).removeClass("empty_letter");
+
+                    if (!table[y].eq(x).text()) {
+                        table[y].eq(x).addClass("letter");
+                        table[y].eq(x).append('<p class="char_font">' + chars[index].toUpperCase() + '</p>');
+                    }
+
+                    [y, x] = go_to_vector(y, x, direction);
+                }
+            }
+
+            let size = Math.round(900 / width);
+
+            console.log("size = " + size);
+
+            $('.main').css('width', size * width +'px');
+
+            console.log("main.width = " + size * width +'px')
+
+            $('.letter').css('width', size);
+            $('.letter').css('height', size);
+            $('.letter').css('line-height', size + 'px');
+
+            $('.empty_letter').css('width', size);
+            $('.empty_letter').css('height', size);
+
+            let font_size = Math.round(size * 3/5);
+            $('.char_font').css('font-size', font_size + 'px');
+        }
 
         function go_to_vector(y, x, direction) {
             if (direction == 0) {
@@ -55,80 +178,24 @@
             }
         }
 
-        function add_start_bound(elem, direction) {
-            if (direction == 0) {
-                elem.css('border-bottom', '2px solid black');
-            } else if (direction == 1) {
-                elem.css('border-left', '2px solid black');
-            } else if (direction == 2) {
-                elem.css('border-top', '2px solid black');
-            } else if (direction == 3) {
-                elem.css('border-right', '2px solid black');
-            }
-        }
-
-        function add_inside_bound(elem, direction) {
-            if (direction == 0 || direction == 2) {
-                elem.css('border-left', '2px solid black');
-                elem.css('border-right', '2px solid black');
-            } else {
-                elem.css('border-top', '2px solid black');
-                elem.css('border-bottom', '2px solid black');
-            }
-        }
-
-        function add_end_bound(elem, direction) {
-            direction = (direction + 2) % 4;
-            add_start_bound(elem, direction);
-        }
-
         function draw_crossword(data) {
             $("#message_div").empty();
+            $("#main_table").empty();
             if (data.height == data.width && data.width == 0) {
                 $("#message_div").append("<h3 style='color:red'>Не могу составить кроссворд из этих слов, " +
                     "добавьте другие слова так, чтобы было больше пересечений</h3>");
                 return;
             }
 
-            for (i = 0; i < data.height; i++) {
-                $("#crossword_table").append('<tr></tr>');
-            }
+            create_table_div(data.height, data.width, data.data);
 
-            let trs = $("#crossword_table").find("tr");
-            for (i = 0; i < data.height; i++) {
-                for (j = 0; j < data.width; j++) {
-                    trs.eq(i).append('<td style="width:50px;height:50px"></td>');
-                }
-            }
+            $(".letter").mouseover(function() {
+                $(this).addClass("hover_letter");
+            });
 
-            let table = [];
-            for (i = 0; i < trs.length; i++) {
-                table[i] = trs.eq(i).find("td");
-            }
-
-            console.log(table);
-
-            for (i = 0; i < data.data.length; i++) {
-                let x = data.data[i].x;
-                let y = data.data[i].y;
-                let direction = data.data[i].direction;
-                let chars = data.data[i].word.split("");
-
-                table[y].eq(x).css('background-color', 'bisque');
-                add_start_bound(table[y].eq(x), direction);
-                for (index = 0; index < chars.length; index++) {
-
-                    if (!table[y].eq(x).text()) {
-                        table[y].eq(x).append('<h3>' + chars[index] + '</h3>');
-                    }
-
-                    add_inside_bound(table[y].eq(x), direction);
-                    if (index + 1 == chars.length)
-                        add_end_bound(table[y].eq(x), direction);
-
-                    [y, x] = go_to_vector(y, x, direction);
-                }
-            }
+            $(".letter").mouseleave(function () {
+                $(this).removeClass("hover_letter");
+            })
         }
 
         function getCookie(c_name) {
@@ -171,7 +238,9 @@
             });
 
         });
+
     });
+
 </script>
 
 </body>
