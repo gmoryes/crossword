@@ -20,6 +20,8 @@ from crossword import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('bla/', views.index, name='index'),
+    path('crossword/', views.index, name='index'),
     path('generate/', views.generate, name='generate'),
+    path('save_page/', views.save_page, name='save_page'),
+    path('crossword/download/<random_number>', views.download_page)
 ]
