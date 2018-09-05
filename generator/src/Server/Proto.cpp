@@ -72,6 +72,7 @@ void Proto::read_data(std::vector<std::wstring> &data) {
         buf[word_length] = '\0';
 
         data[i] = string_to_wstring(std::string(buf));
+        std::cout << "Get word from socket(" << client_socket << "): " << std::string(buf) << std::endl;
     }
 }
 
